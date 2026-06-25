@@ -1,0 +1,13 @@
+{% import "partials/language.html" as lang with context %}
+{% set _meta = page.meta if page else None %}
+{% set _repo_url = (_meta.repo_url if _meta else None) | default(config.repo_url) %}
+{% set _repo_name = (_meta.repo_name if _meta else None) | default(config.repo_name) %}
+<a href="{{ _repo_url }}" title="{{ lang.t('source.link.title') }}" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    {% set icon = config.theme.icon.repo or "fontawesome/brands/git-alt" %}
+    {% include ".icons/" ~ icon ~ ".svg" %}
+  </div>
+  <div class="md-source__repository">
+    {{ _repo_name }}
+  </div>
+</a>

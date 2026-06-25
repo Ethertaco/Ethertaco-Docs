@@ -1,0 +1,259 @@
+/* =====================================================================
+   Ethertaco Docs — motion & micro-interactions
+   ---------------------------------------------------------------------
+   Design intent: one accent color (--md-primary-fg-color) carries every
+   hover highlight; a single orchestrated page-load reveal is the only
+   "big" moment; everything else stays quiet. All motion is disabled
+   under prefers-reduced-motion at the bottom of the file.
+   ===================================================================== */
+
+:root {
+  /* Shared easing tokens so every interaction feels like one system.   */
+  --et-spring: cubic-bezier(0.34, 1.56, 0.64, 1);   /* gentle overshoot */
+  --et-smooth: cubic-bezier(0.4, 0, 0.2, 1);        /* standard ease    */
+  --et-snappy: cubic-bezier(0.2, 0, 0, 1);          /* quick & precise  */
+}
+
+/* =====================================================================
+   1. Page-load reveal  —  the one orchestrated moment
+   The content column fades up once per navigation. Subtle on purpose;
+   fill-mode: both keeps content visible if animation never fires.
+   ===================================================================== */
+
+@keyframes et-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.md-content__inner > * {
+  animation: et-rise 0.5s var(--et-smooth) both;
+}
+
+/* Light stagger across the first few blocks so the page "settles in"
+   top-to-bottom instead of all at once. */
+.md-content__inner > *:nth-child(1) { animation-delay: 0.00s; }
+.md-content__inner > *:nth-child(2) { animation-delay: 0.04s; }
+.md-content__inner > *:nth-child(3) { animation-delay: 0.08s; }
+.md-content__inner > *:nth-child(4) { animation-delay: 0.12s; }
+.md-content__inner > *:nth-child(5) { animation-delay: 0.16s; }
+
+/* =====================================================================
+   2. Grid cards  —  refined version of your original hover + entrance
+   ===================================================================== */
+
+.md-typeset .grid.cards > ul > li {
+  position: relative;
+  overflow: hidden;                 /* clip the sheen sweep below */
+  transition:
+    transform 0.3s var(--et-spring),
+    box-shadow 0.3s var(--et-smooth),
+    border-color 0.3s ease;
+  animation: et-rise 0.5s var(--et-smooth) both;
+}
+
+/* Entrance stagger for the cards themselves. */
+.md-typeset .grid.cards > ul > li:nth-child(1) { animation-delay: 0.10s; }
+.md-typeset .grid.cards > ul > li:nth-child(2) { animation-delay: 0.16s; }
+.md-typeset .grid.cards > ul > li:nth-child(3) { animation-delay: 0.22s; }
+.md-typeset .grid.cards > ul > li:nth-child(4) { animation-delay: 0.28s; }
+.md-typeset .grid.cards > ul > li:nth-child(5) { animation-delay: 0.34s; }
+.md-typeset .grid.cards > ul > li:nth-child(6) { animation-delay: 0.40s; }
+
+.md-typeset .grid.cards > ul > li:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 28px -10px rgba(0, 0, 0, 0.35);
+  border-color: var(--md-primary-fg-color);
+}
+
+/* A soft diagonal sheen that sweeps across the card on hover — the one
+   signature flourish. Uses the accent color at low opacity. */
+.md-typeset .grid.cards > ul > li::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    color-mix(in srgb, var(--md-primary-fg-color) 14%, transparent) 50%,
+    transparent 100%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.7s var(--et-smooth);
+  pointer-events: none;
+}
+
+.md-typeset .grid.cards > ul > li:hover::after {
+  transform: translateX(120%);
+}
+
+.md-typeset .grid.cards > ul > li .twemoji {
+  transition:
+    color 0.25s ease,
+    transform 0.25s var(--et-spring);
+}
+
+.md-typeset .grid.cards > ul > li:hover .twemoji {
+  color: var(--md-primary-fg-color);
+  transform: scale(1.18) rotate(-4deg);
+}
+
+/* "Read more" / last link gains a growing arrow gap (kept from yours). */
+.md-typeset .grid.cards > ul > li a:last-of-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: gap 0.2s ease;
+}
+
+.md-typeset .grid.cards > ul > li a:last-of-type:hover {
+  gap: 0.6rem;
+}
+
+/* =====================================================================
+   3. Inline links  —  animated underline that grows from the left
+   ===================================================================== */
+
+.md-typeset a:not(.md-button):not(.headerlink):not(.md-tag) {
+  background-image: linear-gradient(var(--md-primary-fg-color), var(--md-primary-fg-color));
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0% 2px;
+  transition: background-size 0.25s var(--et-snappy);
+}
+
+.md-typeset a:not(.md-button):not(.headerlink):not(.md-tag):hover {
+  background-size: 100% 2px;
+}
+
+/* =====================================================================
+   4. Inline code & code blocks
+   ===================================================================== */
+
+.md-typeset code {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.md-typeset p > code:hover,
+.md-typeset li > code:hover {
+  background-color: color-mix(in srgb, var(--md-primary-fg-color) 16%, var(--md-code-bg-color));
+}
+
+.md-typeset pre > code {
+  transition: box-shadow 0.3s var(--et-smooth);
+}
+
+.md-typeset .highlight:hover pre > code {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--md-primary-fg-color) 35%, transparent);
+}
+
+/* =====================================================================
+   5. Heading anchors  —  the ¶ slides in instead of just appearing
+   ===================================================================== */
+
+.md-typeset .headerlink {
+  opacity: 0;
+  transform: translateX(-0.3rem);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s var(--et-spring),
+    color 0.2s ease;
+}
+
+.md-typeset :hover > .headerlink {
+  opacity: 0.5;
+  transform: translateX(0);
+}
+
+.md-typeset .headerlink:hover {
+  opacity: 1 !important;
+  color: var(--md-primary-fg-color);
+}
+
+/* =====================================================================
+   6. Tooltips (content.tooltips)  —  fade + lift, with a bold term head
+   Enable in mkdocs.yml: features:[content.tooltips], extensions:[abbr].
+   The ::before injects the term in bold above the definition, matching
+   the card style from your screenshot.
+   ===================================================================== */
+
+.md-tooltip {
+  transform: translateY(6px);
+  transition:
+    transform 0.25s var(--et-spring),
+    opacity 0.2s var(--et-smooth);
+  border: 1px solid color-mix(in srgb, var(--md-primary-fg-color) 30%, transparent);
+  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.45);
+}
+
+.md-tooltip--active {
+  transform: translateY(0);
+}
+
+/* Accent bar down the left edge of the tooltip card. */
+.md-tooltip__inner {
+  border-left: 3px solid var(--md-primary-fg-color);
+  padding-left: 0.8rem;
+}
+
+/* =====================================================================
+   7. Tables & admonitions  —  quiet hover feedback
+   ===================================================================== */
+
+.md-typeset table:not([class]) tr {
+  transition: background-color 0.2s ease;
+}
+
+.md-typeset table:not([class]) tbody tr:hover {
+  background-color: color-mix(in srgb, var(--md-primary-fg-color) 7%, transparent);
+}
+
+.md-typeset .admonition,
+.md-typeset details {
+  transition:
+    box-shadow 0.25s var(--et-smooth),
+    transform 0.25s var(--et-smooth);
+}
+
+.md-typeset .admonition:hover,
+.md-typeset details:hover {
+  transform: translateX(2px);
+  box-shadow: -3px 0 0 0 var(--md-primary-fg-color);
+}
+
+/* =====================================================================
+   8. Sidebar nav  —  active marker & hover slide
+   ===================================================================== */
+
+.md-nav__link {
+  transition:
+    color 0.2s ease,
+    padding-left 0.2s var(--et-snappy);
+}
+
+.md-nav__item .md-nav__link:not(.md-nav__link--active):hover {
+  padding-left: 0.4rem;
+  color: var(--md-primary-fg-color);
+}
+
+/* =====================================================================
+   9. Reduced motion  —  accessibility floor
+   Anyone with "reduce motion" enabled gets the design with no movement.
+   ===================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .md-content__inner > *,
+  .md-typeset .grid.cards > ul > li {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

@@ -1,0 +1,5 @@
+@"
+__pycache__/
+*.pyc
+site/
+"@ | Out-File -Encoding utf8 .gitignore
